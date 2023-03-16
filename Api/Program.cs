@@ -11,6 +11,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Serilog.Events;
 
@@ -72,7 +73,7 @@ namespace Api
             services.AddControllers
                 (
                     options =>
-                        options.Filters.Add(new ApiExceptionFilter())
+                        options.Filters.Add(typeof(ApiExceptionFilter))
                 )
                 .AddJsonOptions
                 (
@@ -80,8 +81,16 @@ namespace Api
                     {
                         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                         options.JsonSerializerOptions.WriteIndented = true;
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                     }
                 );
+            
+            services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+            });
 
             services.AddApplication();
 
