@@ -1,6 +1,8 @@
 using System;
 using Application.Common.Interfaces;
 using Infrastructure.Persistence;
+using MessagePack;
+using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +44,8 @@ namespace Infrastructure
                 provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>()
                     .CreateDbContext()
             );
+            
+            MessagePackSerializer.DefaultOptions = ContractlessStandardResolver.Options;
 
             return services;
         }
