@@ -26,13 +26,4 @@
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\GeneratorMarkers\GeneratorMarkers.csproj" />
-        <ProjectReference Include="..\SourceGenerators\SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
-    <PropertyGroup>
-        <MSBuildVerbosity>Detailed</MSBuildVerbosity>
-    </PropertyGroup>
-
 </Project>

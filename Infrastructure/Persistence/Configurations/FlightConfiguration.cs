@@ -1,12 +1,12 @@
-﻿using Domain.Entities.FlightAggregate;
+﻿using Infrastructure.DbEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
 
-public class FlightConfiguration : IEntityTypeConfiguration<Flight>
+public class FlightConfiguration : IEntityTypeConfiguration<FlightDbModel>
 {
-    public void Configure(EntityTypeBuilder<Flight> builder)
+    public void Configure(EntityTypeBuilder<FlightDbModel> builder)
     {
         builder.ToTable("Flight");
 
@@ -14,10 +14,12 @@ public class FlightConfiguration : IEntityTypeConfiguration<Flight>
             .HasDefaultValueSql("newsequentialid()");
 
         builder.Property(x => x.Origin)
-            .HasMaxLength(256);
+            .HasMaxLength(255)
+            .IsRequired();
 
         builder.Property(x => x.Destination)
-            .HasMaxLength(256);
+            .HasMaxLength(255)
+            .IsRequired();
 
         builder.HasIndex(x => new
         {

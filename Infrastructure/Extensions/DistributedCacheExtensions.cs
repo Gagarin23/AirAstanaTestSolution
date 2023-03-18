@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Domain.Interfaces;
 using MessagePack;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Extensions;
 
 public static class DistributedCacheExtensions
 {

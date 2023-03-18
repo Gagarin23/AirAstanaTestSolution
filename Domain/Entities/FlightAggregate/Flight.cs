@@ -30,20 +30,20 @@ public class Flight : AggregateBase, ICacheable
 
     public void Delay(TimeSpan delayBy)
     {
-        NotificationsInternal.Enqueue(new FlightStatusChangedNotification(FlightStatus.Delayed, Status, this));
         Departure = Departure.Add(delayBy);
         Arrival = Arrival.Add(delayBy);
+
+        var previousStatus = Status;
         Status = FlightStatus.Delayed;
+        
+        NotificationsInternal.Enqueue(new FlightStatusChangedNotification(Status, previousStatus, this));
     }
 
     public void Cancel()
     {
-        NotificationsInternal.Enqueue(new FlightStatusChangedNotification(FlightStatus.Cancelled, Status, this));
+        var previousStatus = Status;
         Status = FlightStatus.Cancelled;
-    }
-
-    internal Flight()
-    {
-
+        
+        NotificationsInternal.Enqueue(new FlightStatusChangedNotification(Status, previousStatus, this));
     }
 }

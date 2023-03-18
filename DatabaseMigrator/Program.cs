@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Infrastructure.Persistence;
+using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace DatabaseMigrator
@@ -12,7 +13,7 @@ namespace DatabaseMigrator
                 .MinimumLevel.Information()
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("Logs/migration.log")
+                .WriteTo.File("Logs/migration.log", rollingInterval: RollingInterval.Hour)
                 .CreateLogger();
 
             try
@@ -36,6 +37,7 @@ namespace DatabaseMigrator
         private static void MigrateDatabase()
         {
             var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
+            optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);
             optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionString"));
 
             using (var dbContext = new DatabaseContext(optionsBuilder.Options))

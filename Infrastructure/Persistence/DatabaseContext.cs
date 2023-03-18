@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Domain.Entities.FlightAggregate;
 using Domain.Interfaces;
-using Infrastructure.Services;
+using Infrastructure.DbEntities;
+using Infrastructure.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,7 +25,13 @@ namespace Infrastructure.Persistence
             
         }
 
-        public virtual DbSet<Flight> Flights { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
+
+        public virtual DbSet<FlightDbModel> Flights { get; set; }
+        public virtual DbSet<FlightStatusDbModel> FlightStatuses { get; set; }
 
         public IServiceProvider AsServiceProvider() => ((IInfrastructure<IServiceProvider>)this).Instance;
 
