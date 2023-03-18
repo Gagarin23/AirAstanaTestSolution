@@ -62,7 +62,7 @@ namespace Api
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("Logs/migration.log")
+                .WriteTo.File("Logs/migration.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             loggingBuilder.AddSerilog(logger);
