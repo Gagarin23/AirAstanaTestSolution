@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230319133523_Add_Identity")]
+    partial class Add_Identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,13 +128,13 @@ namespace Infrastructure.Persistence.Migrations
                         new
                         {
                             Id = "d25993c3-bbbc-440f-b7f0-6811e83a9f48",
-                            ConcurrencyStamp = "a3de0252-8d5c-481a-ad38-f03ad16b310a",
+                            ConcurrencyStamp = "f72d4367-17c8-44e9-829d-34321e68322b",
                             Name = "User"
                         },
                         new
                         {
                             Id = "62b7cfd9-d0b8-4300-baf9-0540a0f817c7",
-                            ConcurrencyStamp = "cbcfa51b-3c5b-4c0d-9b4d-a1374bad0ff7",
+                            ConcurrencyStamp = "d39fc156-ee80-41f9-8fac-d9928ccaaa1a",
                             Name = "Moderator"
                         });
                 });
@@ -231,13 +233,12 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = "82584756-126d-4382-b8a2-e8b439b630ad",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "829662bb-2dde-4708-b733-e186484f7917",
+                            ConcurrencyStamp = "02e578c5-44cf-492b-ae5a-6a1bf2e18110",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            NormalizedUserName = "SOMEUSER",
-                            PasswordHash = "AQAAAAEAACcQAAAAENon36aOE0pzAYhnMl030NHnkH9Ov8lJ9lVlLRKVzIgfMoh70Ap8IAiITcAkgRzu9Q==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDUtWvmq1ly4hjVEZBM4JYuHfvWgb6PqBvoYQMUqTzSUn4ee90FfNVtFCrfeG/DBTQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "30a0de87-3386-4f8c-8c1c-6f9efdb6f23c",
+                            SecurityStamp = "bb32170a-1557-443a-87e7-b8893ed7f47e",
                             TwoFactorEnabled = false,
                             UserName = "someuser"
                         },
@@ -245,13 +246,12 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = "6f5768da-b384-4a79-abab-bc82cec127d9",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c5ccc3b1-63f4-4536-8bea-443bd765abbf",
+                            ConcurrencyStamp = "79b7be73-b416-4a8c-9f77-1046ce97bb3d",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
-                            NormalizedUserName = "SOMEMODERATOR",
-                            PasswordHash = "AQAAAAEAACcQAAAAEPk26Ba5A0a70Xd7WWKg9tZYcuBKXnCipCqo42NaqB1Ysj7/t9hJZsuryiGZ1bxTRA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAECegAVcdcH1xogEVqNsfn5ogbuERatSuHQQCttIta6lUZvrFzFgTVWUqRd4ldXGBnQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "20938145-f4ab-4b53-a076-514805f42c75",
+                            SecurityStamp = "240b7bf1-2c28-47b0-b974-ea2ca7776a84",
                             TwoFactorEnabled = false,
                             UserName = "somemoderator"
                         });

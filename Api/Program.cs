@@ -7,12 +7,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
 using System.IO;
-using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
+using Api.Configs;
+using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.IdentityModel.Tokens;
 using Serilog.Events;
 
 namespace Api
@@ -62,7 +66,7 @@ namespace Api
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.File("Logs/migration.log", rollingInterval: RollingInterval.Day)
+                .WriteTo.File("Logs/api.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             loggingBuilder.AddSerilog(logger);
@@ -85,16 +89,15 @@ namespace Api
                     }
                 );
             
-            services.AddApiVersioning(options =>
-            {
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ReportApiVersions = true;
-            });
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
+            services.AddEndpointsApiExplorer();
+
+            AddVersioning(services);
+
+            AddIdentity(services);
 
             services.AddApplication();
-
-            services.ConfigureSettings(_configuration);
 
             services.AddInfrastructure(_configuration);
 
@@ -102,27 +105,88 @@ namespace Api
 
             services.AddEndpointsApiExplorer();
 
-            services.AddSwaggerGen
+            AddSwagger(services);
+
+            services.AddOptions();
+        }
+
+        private static void AddVersioning(IServiceCollection services)
+        {
+            services.AddApiVersioning
             (
                 options =>
                 {
-                    options.SwaggerDoc
-                    (
-                        "v1",
-                        new OpenApiInfo
-                        {
-                            Version = "v1",
-                            Title = "API",
-                            Description = "An ASP.NET Core Web API",
-                        }
-                    );
-
-                    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true;
                 }
             );
 
-            services.AddOptions();
+            services.AddVersionedApiExplorer
+            (
+                options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                }
+            );
+        }
+
+        private static void AddSwagger(IServiceCollection services)
+        {
+            services.ConfigureOptions<SwaggerGenOptionsConfig>();
+            services.ConfigureOptions<SwaggerUIOptionsConfig>();
+            
+            services.AddSwaggerGen();
+            services.ConfigureSwaggerGen(options => {});
+        }
+
+        private static void AddIdentity(IServiceCollection services)
+        {
+            services.AddIdentity<IdentityUser, IdentityRole>
+                (
+                    options =>
+                    {
+                        options.Password.RequireDigit = false;
+                        options.Password.RequireLowercase = false;
+                        options.Password.RequireUppercase = false;
+                        options.Password.RequireNonAlphanumeric = false;
+                        options.User.RequireUniqueEmail = false;
+                    }
+                )
+                //для простоты поместил в один контекст
+                .AddEntityFrameworkStores<DatabaseContext>()
+                .AddDefaultTokenProviders();
+
+            //по хорошему нужен сервер аутентификации/авторизации openIdConnect
+            //с методом авторизации code flow, с асимитричным алгоритмом подписи, с ротацией сертификатов и тд.
+            //для демонстрации упростил.
+            //используем симетричное шифрование
+            //валидируем только издателя и время жизни
+            services.AddAuthentication
+                (
+                    //перезатираем аутентификацию из identity
+                    options =>
+                    {
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    }
+                )
+                .AddJwtBearer
+                (
+                    options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateAudience = false,
+                            ValidIssuer = _configuration.GetSection("AuthSettings")["ValidIssuer"],
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("AuthSettings")["Secret"]))
+                        };
+                    }
+                );
+
+            services.AddAuthorization();
         }
 
         private static void ConfigureApplication(WebApplication app)
@@ -146,6 +210,8 @@ namespace Api
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

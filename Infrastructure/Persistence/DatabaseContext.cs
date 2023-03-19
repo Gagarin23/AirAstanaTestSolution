@@ -9,6 +9,7 @@ using Domain.Interfaces;
 using Infrastructure.DbEntities;
 using Infrastructure.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Distributed;
@@ -17,7 +18,7 @@ using Redis.OM.Contracts;
 
 namespace Infrastructure.Persistence
 {
-    public class DatabaseContext : DbContext, IDatabaseContext
+    public class DatabaseContext : IdentityDbContext, IDatabaseContext
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options)
             : base(options)
@@ -27,6 +28,7 @@ namespace Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 

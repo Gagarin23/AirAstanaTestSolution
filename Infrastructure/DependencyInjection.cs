@@ -52,6 +52,12 @@ namespace Infrastructure
                 provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
             );
 
+            //для identity
+            services.AddScoped<DatabaseContext>
+            (
+                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
+            );
+
             services.AddScoped<IReadonlyDatabaseContext, ReadonlyDatabaseContextWrapper>();
             
             MessagePackSerializer.DefaultOptions = ContractlessStandardResolver.Options;
