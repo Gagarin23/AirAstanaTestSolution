@@ -4,12 +4,13 @@ using System.Reflection;
 using Application.Common.Interfaces;
 using Infrastructure.Interfaces;
 using Infrastructure.Persistence;
-using Infrastructure.Services;
 using Infrastructure.Services.Flights;
+using Infrastructure.Services.Users;
 using Mapster;
 using MessagePack;
 using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ namespace Infrastructure
                         b =>
                             b.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName)
                     );
-                    
+
                     options.UseInternalServiceProvider(provider);
                     
                     if (EnvironmentExtension.IsDevelopment)
@@ -57,6 +58,8 @@ namespace Infrastructure
             (
                 provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
             );
+            
+            services.AddTransient<IUserContext, UserContext>();
 
             services.AddScoped<IReadonlyDatabaseContext, ReadonlyDatabaseContextWrapper>();
             
@@ -65,7 +68,8 @@ namespace Infrastructure
             services.AddScoped<IFlightManager, FlightManager>();
             services.AddScoped<IReadonlyFlightManager, ReadonlyFlightManager>();
             
-            services.AddScoped<IRedisConnectionProvider, RedisConnectionProvider>(_ => new RedisConnectionProvider("redis://localhost:6379"));
+            var redisConnection = configuration.GetConnectionString("RedisConnection");
+            services.AddScoped<IRedisConnectionProvider, RedisConnectionProvider>(_ => new RedisConnectionProvider(redisConnection));
             
             TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
             TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());

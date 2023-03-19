@@ -1,10 +1,11 @@
 ﻿using System;
+using Application.Common.Interfaces;
 using Domain.Entities.FlightAggregate;
 using MediatR;
 
 namespace Application.Flights.Commands.UpdateStatus;
 
-public class UpdateFlightStatusCommand : IRequest<Unit>
+public class UpdateFlightStatusCommand : ICommand<Unit>
 {
     public Guid FlightId { get; init; }
     public FlightStatus Status { get; init; }
