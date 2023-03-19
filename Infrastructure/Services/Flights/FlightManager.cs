@@ -74,18 +74,23 @@ public class FlightManager : IFlightManager
 
     private async ValueTask ActualizeCacheAsync(FlightDbModel flightDbModel)
     {
-        var current = await _flightCache.FirstOrDefaultAsync(x => x.Id == flightDbModel.Id) ?? new FlightDbModel();
+        var cached = await _flightCache.FirstOrDefaultAsync(x => x.Id == flightDbModel.Id) ?? new FlightDbModel();
 
-        flightDbModel.CacheKey = current.CacheKey;
+        flightDbModel.CacheKey = cached.CacheKey;
         
         await _flightCache.InsertAsync(flightDbModel);
     }
 
     private async ValueTask RemoveFromCacheAsync(Guid id)
     {
-        var current = await _flightCache.FirstOrDefaultAsync(x => x.Id == id) ?? new FlightDbModel();
+        var cached = await _flightCache.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (cached == null)
+        {
+            return;
+        }
         
-        await _flightCache.DeleteAsync(current);
+        await _flightCache.DeleteAsync(cached);
     }
 
     private async Task PublishNotifications(Flight flight, CancellationToken cancellationToken)
