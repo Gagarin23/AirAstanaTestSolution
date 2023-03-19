@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Infrastructure.Constants;
+namespace Application.Common.Constants;
 
 public static class FlightStatusConstants
 {

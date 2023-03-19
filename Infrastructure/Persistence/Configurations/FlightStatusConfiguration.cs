@@ -1,4 +1,4 @@
-﻿using Infrastructure.Constants;
+﻿using Application.Common.Constants;
 using Infrastructure.DbEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,9 +23,9 @@ public class FlightStatusConfiguration : IEntityTypeConfiguration<FlightStatusDb
 
         builder.HasData
         (
-            new FlightStatusDbModel() { Id = FlightStatusConstants.InTimeId, Name = "Без задержек" },
-            new FlightStatusDbModel() { Id = FlightStatusConstants.DelayedId, Name = "Задержка" },
-            new FlightStatusDbModel() { Id = FlightStatusConstants.CancelledId, Name = "Отменён" }
+            new FlightStatusDbModel { Id = FlightStatusConstants.InTimeId, Name = "Без задержек" },
+            new FlightStatusDbModel { Id = FlightStatusConstants.DelayedId, Name = "Задержка" },
+            new FlightStatusDbModel { Id = FlightStatusConstants.CancelledId, Name = "Отменён" }
         );
     }
 }

@@ -6,9 +6,4 @@ public class FlightStatusDbModel
 {
     public Guid Id { get; internal set; }
     public string Name { get; internal set; }
-
-    internal FlightStatusDbModel()
-    {
-        
-    }
 }

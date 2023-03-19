@@ -1,19 +1,19 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Infrastructure.DbEntities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Application.Common.Interfaces
+namespace Infrastructure.Interfaces
 {
     public interface IDatabaseContext
     {
-        public DatabaseFacade Database { get; }
-        public ChangeTracker ChangeTracker { get; }
-        public IModel Model { get; }
-
-        IServiceProvider AsServiceProvider();
+        DbSet<FlightDbModel> Flights { get; }
+        DbSet<FlightStatusDbModel> FlightStatuses { get; }
+        
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

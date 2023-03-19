@@ -4,16 +4,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Common.Interfaces;
 using Domain.Entities.FlightAggregate;
 using Domain.Interfaces;
 using Infrastructure.DbEntities;
-using Infrastructure.Extensions;
+using Infrastructure.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
+using Redis.OM.Contracts;
 
 namespace Infrastructure.Persistence
 {
@@ -39,13 +39,11 @@ namespace Infrastructure.Persistence
         {
             var provider = AsServiceProvider();
 
-            IdentifyEntries(out var cacheables, out var aggregates);
+            ExtractEntriesPerType(out var aggregates);
 
             await PublishNotificationsAsync(provider, aggregates, cancellationToken);
 
             var affectedRows = await base.SaveChangesAsync(cancellationToken);
-            
-            await ActualizeCacheAsync(provider, cacheables, cancellationToken);
 
             return affectedRows;
         }
@@ -64,39 +62,22 @@ namespace Infrastructure.Persistence
                 await mediator.Publish(notification, cancellationToken);
             }
         }
-
-        private Task ActualizeCacheAsync(IServiceProvider provider, IReadOnlyCollection<ICacheable> cacheables, CancellationToken cancellationToken)
+        
+        private void ExtractEntriesPerType(out List<IAggregate> aggregates)
         {
-            if (cacheables.Count < 1)
-            {
-                return Task.CompletedTask;
-            }
-            
-            var cache = provider.GetRequiredService<IDistributedCache>();
-
-            return Task.WhenAll
-            (
-                cacheables.Select(cacheable => cache.SetAsync(cacheable, cancellationToken))
-            );
-        }
-
-        private void IdentifyEntries(out List<ICacheable> cacheables, out List<IAggregate> aggregates)
-        {
-            cacheables = new List<ICacheable>();
             aggregates = new List<IAggregate>();
 
+            //если понадобиться выделить другие коллекции,
+            //то обобщённая версия Entries<T> не подойдёт.
             foreach (var entry in ChangeTracker.Entries())
             {
                 var entity = entry.Entity;
 
-                if (entity is ICacheable cacheable)
+                switch (entity)
                 {
-                    cacheables.Add(cacheable);
-                }
-
-                if (entity is IAggregate aggregate)
-                {
-                    aggregates.Add(aggregate);
+                    case IAggregate aggregate:
+                        aggregates.Add(aggregate);
+                        break;
                 }
             }
         }

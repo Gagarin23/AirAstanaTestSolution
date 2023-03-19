@@ -1,12 +1,20 @@
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using Application.Common.Interfaces;
+using Infrastructure.Interfaces;
 using Infrastructure.Persistence;
+using Infrastructure.Services;
+using Infrastructure.Services.Flights;
+using Mapster;
 using MessagePack;
 using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Redis.OM;
+using Redis.OM.Contracts;
 
 namespace Infrastructure
 {
@@ -41,11 +49,20 @@ namespace Infrastructure
 
             services.AddScoped<IDatabaseContext>
             (
-                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>()
-                    .CreateDbContext()
+                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
             );
+
+            services.AddScoped<IReadonlyDatabaseContext, ReadonlyDatabaseContextWrapper>();
             
             MessagePackSerializer.DefaultOptions = ContractlessStandardResolver.Options;
+
+            services.AddScoped<IFlightManager, FlightManager>();
+            services.AddScoped<IReadonlyFlightManager, ReadonlyFlightManager>();
+            
+            services.AddScoped<IRedisConnectionProvider, RedisConnectionProvider>(_ => new RedisConnectionProvider("redis://localhost:6379"));
+            
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
+            TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 
             return services;
         }

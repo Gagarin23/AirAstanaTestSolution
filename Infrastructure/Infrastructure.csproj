@@ -19,7 +19,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.15" />
+        <PackageReference Include="Redis.OM" Version="0.4.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -34,7 +34,6 @@
 
     <ItemGroup>
       <Folder Include="Persistence\Migrations" />
-      <Folder Include="Services" />
     </ItemGroup>
 
 </Project>

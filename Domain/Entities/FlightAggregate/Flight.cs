@@ -1,10 +1,12 @@
 ﻿using System;
+using Domain.Constants;
 using Domain.Entities.FlightAggregate.Events;
+using Domain.Exceptions;
 using Domain.Interfaces;
 
 namespace Domain.Entities.FlightAggregate;
 
-public class Flight : AggregateBase, ICacheable
+public class Flight : AggregateBase
 {
     public string Origin { get; }
     public string Destination { get; }
@@ -14,19 +16,36 @@ public class Flight : AggregateBase, ICacheable
 
     public Flight(string origin, string destination, DateTimeOffset departure, DateTimeOffset arrival, FlightStatus status)
     {
-        Origin = origin;
-        Destination = destination;
-        Departure = departure;
-        Arrival = arrival;
-        Status = status;
+        Origin = string.IsNullOrWhiteSpace(origin) ?
+                throw new DomainInvalidStateException(nameof(origin)) :
+                origin;
+        
+        Destination = string.IsNullOrWhiteSpace(destination) ?
+                throw new DomainInvalidStateException(nameof(destination)) :
+                destination;
+        
+        Departure = departure == default ?
+                throw new DomainInvalidStateException(nameof(departure)) :
+                departure;
+        
+        Arrival = arrival == default ?
+                throw new DomainInvalidStateException(nameof(arrival)) :
+                arrival;
+        
+        Status = status == FlightStatus.Undefined ?
+                throw new DomainInvalidStateException(nameof(status)) :
+                status;
+
+        if (Arrival > Departure)
+        {
+            throw new DomainInvalidStateException(ValidationMessages.ArrivalGreaterOrEqualsThanDeparture);
+        }
+
+        if (Origin == Destination)
+        {
+            throw new DomainInvalidStateException(ValidationMessages.OriginEqualsDestination);
+        }
     }
-
-    #region System
-
-    public string CacheKey => Id.ToString();
-    
-
-    #endregion
 
     public void Delay(TimeSpan delayBy)
     {

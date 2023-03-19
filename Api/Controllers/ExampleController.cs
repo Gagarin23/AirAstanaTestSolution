@@ -1,5 +1,9 @@
+using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Application.Common.Interfaces;
+using Application.Flights.Queries.Get;
+using Domain.Entities.FlightAggregate;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -24,9 +28,9 @@ namespace Api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetOkMessage()
+        public async Task<IActionResult> Get(GetFlightsQuery request, CancellationToken cancellationToken)
         {
-            return Ok();
+            return Ok(await Mediator.Send(request, cancellationToken));
         }
     }
 }
