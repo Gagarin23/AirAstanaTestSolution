@@ -6,6 +6,7 @@ using Domain.Entities.FlightAggregate;
 using Infrastructure.DbEntities;
 using Infrastructure.Interfaces;
 using Mapster;
+using MediatR;
 using Redis.OM.Contracts;
 using Redis.OM.Searching;
 
@@ -14,15 +15,17 @@ namespace Infrastructure.Services.Flights;
 public class FlightManager : IFlightManager
 {
     private readonly IDatabaseContext _context;
+    private readonly IMediator _mediator;
     private readonly IRedisCollection<FlightDbModel> _flightCache;
 
-    public FlightManager(IDatabaseContext context, IRedisConnectionProvider redisConnectionProvider)
+    public FlightManager(IDatabaseContext context, IRedisConnectionProvider redisConnectionProvider, IMediator mediator)
     {
         _context = context;
+        _mediator = mediator;
         _flightCache = redisConnectionProvider.RedisCollection<FlightDbModel>();
     }
 
-    public async ValueTask AddAsync(Flight flight, CancellationToken cancellationToken = default)
+    public async ValueTask<Guid> AddAsync(Flight flight, CancellationToken cancellationToken = default)
     {
         var flightDbModel = flight.Adapt<FlightDbModel>();
 
@@ -31,6 +34,10 @@ public class FlightManager : IFlightManager
         await _context.SaveChangesAsync(cancellationToken);
 
         await ActualizeCacheAsync(flightDbModel);
+
+        await PublishNotifications(flight, cancellationToken);
+
+        return flightDbModel.Id;
     }
 
     public async ValueTask UpdateAsync(Flight flight, CancellationToken cancellationToken = default)
@@ -47,6 +54,8 @@ public class FlightManager : IFlightManager
         await _context.SaveChangesAsync(cancellationToken);
 
         await ActualizeCacheAsync(flightDbModel);
+
+        await PublishNotifications(flight, cancellationToken);
     }
 
     public async ValueTask RemoveAsync(Guid id, CancellationToken cancellationToken = default)
@@ -77,5 +86,13 @@ public class FlightManager : IFlightManager
         var current = await _flightCache.FirstOrDefaultAsync(x => x.Id == id) ?? new FlightDbModel();
         
         await _flightCache.DeleteAsync(current);
+    }
+
+    private async Task PublishNotifications(Flight flight, CancellationToken cancellationToken)
+    {
+        foreach (var notification in flight.Notifications)
+        {
+            await _mediator.Publish(notification, cancellationToken);
+        }
     }
 }

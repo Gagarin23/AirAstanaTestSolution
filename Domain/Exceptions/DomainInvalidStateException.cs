@@ -1,18 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Domain.Constants;
+using FluentValidation.Results;
 
 namespace Domain.Exceptions;
 
-public class DomainInvalidStateException : Exception
+public class DomainInvalidStateException : BusinessValidationException
 {
-    public DomainInvalidStateException() { }
+    public DomainInvalidStateException(string property, string message, bool appendDefaultMessage)
+        : base(new []{new ValidationFailure(property, message)}, appendDefaultMessage) { }
 
-    protected DomainInvalidStateException(SerializationInfo info, StreamingContext context)
-        : base(info, context) { }
-
-    public DomainInvalidStateException(string message)
-        : base(message) { }
-
-    public DomainInvalidStateException(string message, Exception innerException)
-        : base(message, innerException) { }
+    public DomainInvalidStateException(string property, string message)
+        : base(new []{new ValidationFailure(property, message)}) { }
 }

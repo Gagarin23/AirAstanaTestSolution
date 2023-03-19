@@ -2,6 +2,8 @@ using System.Threading;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Application.Flights.Commands.Add;
+using Application.Flights.Commands.UpdateStatus;
 using Application.Flights.Queries.Get;
 using Domain.Entities.FlightAggregate;
 using MediatR;
@@ -28,7 +30,19 @@ namespace Api.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Get(GetFlightsQuery request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromBody] GetFlightsQuery request, CancellationToken cancellationToken)
+        {
+            return Ok(await Mediator.Send(request, cancellationToken));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add([FromBody] AddFlightCommand request, CancellationToken cancellationToken)
+        {
+            return Ok(await Mediator.Send(request, cancellationToken));
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> ChangeStatus([FromBody] UpdateFlightStatusCommand request, CancellationToken cancellationToken)
         {
             return Ok(await Mediator.Send(request, cancellationToken));
         }

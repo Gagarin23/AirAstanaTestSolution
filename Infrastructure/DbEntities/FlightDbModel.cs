@@ -22,7 +22,6 @@ public class FlightDbModel : ICacheable
 
     public static Specification<FlightDbModel> OriginFilter(string value) => 
         new Specification<FlightDbModel>(flight => flight.Origin == value);
-
     public static Specification<FlightDbModel> DestinationFilter(string value) => 
         new Specification<FlightDbModel>(flight => flight.Destination == value);
 

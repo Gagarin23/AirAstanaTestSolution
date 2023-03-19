@@ -34,52 +34,5 @@ namespace Infrastructure.Persistence
         public virtual DbSet<FlightStatusDbModel> FlightStatuses { get; set; }
 
         public IServiceProvider AsServiceProvider() => ((IInfrastructure<IServiceProvider>)this).Instance;
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            var provider = AsServiceProvider();
-
-            ExtractEntriesPerType(out var aggregates);
-
-            await PublishNotificationsAsync(provider, aggregates, cancellationToken);
-
-            var affectedRows = await base.SaveChangesAsync(cancellationToken);
-
-            return affectedRows;
-        }
-
-        private async ValueTask PublishNotificationsAsync(IServiceProvider provider, IReadOnlyCollection<IAggregate> aggregates, CancellationToken cancellationToken)
-        {
-            if (aggregates.Count < 1)
-            {
-                return;
-            }
-            
-            var mediator = provider.GetRequiredService<IMediator>();
-
-            foreach (var notification in aggregates.SelectMany(aggregate => aggregate.Notifications))
-            {
-                await mediator.Publish(notification, cancellationToken);
-            }
-        }
-        
-        private void ExtractEntriesPerType(out List<IAggregate> aggregates)
-        {
-            aggregates = new List<IAggregate>();
-
-            //если понадобиться выделить другие коллекции,
-            //то обобщённая версия Entries<T> не подойдёт.
-            foreach (var entry in ChangeTracker.Entries())
-            {
-                var entity = entry.Entity;
-
-                switch (entity)
-                {
-                    case IAggregate aggregate:
-                        aggregates.Add(aggregate);
-                        break;
-                }
-            }
-        }
     }
 }

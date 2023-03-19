@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Common.Exceptions;
 using Application.Common.Extensions;
 using Application.Common.Validators;
+using Domain.Exceptions;
 using FluentValidation;
 using MediatR;
 

@@ -7,7 +7,7 @@ namespace Application.Common.Interfaces;
 
 public interface IFlightManager
 {
-    ValueTask AddAsync(Flight flight, CancellationToken cancellationToken = default);
+    ValueTask<Guid> AddAsync(Flight flight, CancellationToken cancellationToken = default);
     ValueTask UpdateAsync(Flight flight, CancellationToken cancellationToken = default);
     ValueTask RemoveAsync(Guid id, CancellationToken cancellationToken = default);
 }

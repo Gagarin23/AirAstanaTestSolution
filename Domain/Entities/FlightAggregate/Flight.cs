@@ -3,6 +3,7 @@ using Domain.Constants;
 using Domain.Entities.FlightAggregate.Events;
 using Domain.Exceptions;
 using Domain.Interfaces;
+using FluentValidation.Results;
 
 namespace Domain.Entities.FlightAggregate;
 
@@ -17,52 +18,74 @@ public class Flight : AggregateBase
     public Flight(string origin, string destination, DateTimeOffset departure, DateTimeOffset arrival, FlightStatus status)
     {
         Origin = string.IsNullOrWhiteSpace(origin) ?
-                throw new DomainInvalidStateException(nameof(origin)) :
+                throw new DomainInvalidStateException(nameof(Origin), ValidationMessages.DefaultValue) :
                 origin;
         
         Destination = string.IsNullOrWhiteSpace(destination) ?
-                throw new DomainInvalidStateException(nameof(destination)) :
+                throw new DomainInvalidStateException(nameof(Destination), ValidationMessages.DefaultValue) :
                 destination;
         
         Departure = departure == default ?
-                throw new DomainInvalidStateException(nameof(departure)) :
+                throw new DomainInvalidStateException(nameof(Departure), ValidationMessages.DefaultValue) :
                 departure;
         
         Arrival = arrival == default ?
-                throw new DomainInvalidStateException(nameof(arrival)) :
+                throw new DomainInvalidStateException(nameof(Arrival), ValidationMessages.DefaultValue) :
                 arrival;
         
         Status = status == FlightStatus.Undefined ?
-                throw new DomainInvalidStateException(nameof(status)) :
+                throw new DomainInvalidStateException(nameof(Status), ValidationMessages.DefaultValue) :
                 status;
 
-        if (Arrival > Departure)
+        if (Departure > Arrival)
         {
-            throw new DomainInvalidStateException(ValidationMessages.ArrivalGreaterOrEqualsThanDeparture);
+            throw new DomainInvalidStateException(nameof(Flight), ValidationMessages.DepartureGreaterOrEqualsThanArrival);
         }
 
         if (Origin == Destination)
         {
-            throw new DomainInvalidStateException(ValidationMessages.OriginEqualsDestination);
+            throw new DomainInvalidStateException(nameof(Flight), ValidationMessages.OriginEqualsDestination);
         }
     }
-
-    public void Delay(TimeSpan delayBy)
+    
+    /// <summary>
+    /// Возвращение в статус "Без задержек"
+    /// </summary>
+    /// <param name="delayDeparture">Опционально, для корректировки времени</param>
+    /// <param name="delayArrival">Опционально, для корректировки времени</param>
+    public void InTime(TimeSpan delayDeparture = default, TimeSpan delayArrival = default)
     {
-        Departure = Departure.Add(delayBy);
-        Arrival = Arrival.Add(delayBy);
+        OffsetDepartureAndArrival(delayDeparture, delayArrival);
+        ChangeStatus(FlightStatus.InTime);
+    }
 
-        var previousStatus = Status;
-        Status = FlightStatus.Delayed;
-        
-        NotificationsInternal.Enqueue(new FlightStatusChangedNotification(Status, previousStatus, this));
+    public void Delayed(TimeSpan delayDeparture, TimeSpan delayArrival)
+    {
+        OffsetDepartureAndArrival(delayDeparture, delayArrival);
+        ChangeStatus(FlightStatus.Delayed);
     }
 
     public void Cancel()
     {
+        ChangeStatus(FlightStatus.Cancelled);
+    }
+
+    private void ChangeStatus(FlightStatus status)
+    {
         var previousStatus = Status;
-        Status = FlightStatus.Cancelled;
+        Status = status;
         
         NotificationsInternal.Enqueue(new FlightStatusChangedNotification(Status, previousStatus, this));
+    }
+
+    private void OffsetDepartureAndArrival(TimeSpan delayDeparture, TimeSpan delayArrival)
+    {
+        Departure = Departure.Add(delayDeparture);
+        Arrival = Arrival.Add(delayArrival);
+
+        if (Departure > Arrival)
+        {
+            throw new DomainInvalidStateException(nameof(Flight), ValidationMessages.DepartureGreaterOrEqualsThanArrival);
+        }
     }
 }

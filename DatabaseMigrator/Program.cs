@@ -67,11 +67,8 @@ namespace DatabaseMigrator
         private static void RefreshCache(DatabaseContext context, RedisConnectionProvider provider)
         {
             provider.Connection.Execute("flushall");
-            
-            var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
-            optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);
-            optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("DbConnectionString"));
-            
+
+            //получаем все объекты имплиментирующие ICacheable
             var cacheableTypes = Assembly.GetAssembly(typeof(InfrastructureAssemblyMark))
                 .GetTypes()
                 .Where
@@ -80,7 +77,7 @@ namespace DatabaseMigrator
                         .Any(i => i == typeof(ICacheable))
                 );
 
-            var dbTypes = AccessTools.GetDeclaredProperties(typeof(DatabaseContext));
+            var dbContextPropertiesTypes = AccessTools.GetDeclaredProperties(typeof(DatabaseContext));
 
             var chunkSize = 100;
             
@@ -88,15 +85,15 @@ namespace DatabaseMigrator
             {
                 var targetType = typeof(DbSet<>).MakeGenericType(cacheableType);
                     
-                var dbSetPropertyInfo = dbTypes.First(x => x.PropertyType == targetType);
+                var dbSetPropertyInfo = dbContextPropertiesTypes.First(x => x.PropertyType == targetType);
                 var dbSet = dbSetPropertyInfo.GetValue(context);
                     
                 var method = AccessTools.Method(typeof(RelationalQueryableExtensions), nameof(RelationalQueryableExtensions.FromSqlRaw));
-                    
+                
                 var query = $"select * from {context.Model.FindEntityType(cacheableType).GetTableName()}";
-                var dbObjects = method.MakeGenericMethod(cacheableType).Invoke(null, new object?[] { dbSet, query, new object[]{} });
-                var iterator = (IEnumerable)dbObjects;
-
+                //DbSet<>.FromSqlRaw(query)
+                var iterator = (IQueryable)method.MakeGenericMethod(cacheableType).Invoke(null, new object?[] { dbSet, query, new object[]{} });
+                
                 var redisCollection = AccessTools.Method
                     (
                         typeof(RedisConnectionProvider),
@@ -112,9 +109,10 @@ namespace DatabaseMigrator
                     nameof(IRedisCollection<object>.Insert), 
                     new[] { cacheableType }
                 );
-                    
+                
                 foreach (var obj in iterator)
                 {
+                    //RedisCollection<>.Insert()
                     insertMethod.Invoke(redisCollection, new[] { obj });
                 }
             }

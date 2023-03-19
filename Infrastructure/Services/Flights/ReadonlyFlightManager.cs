@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Domain.Constants;
 using Domain.Entities.FlightAggregate;
 using Domain.Specifications;
 using Infrastructure.DbEntities;
@@ -28,7 +29,21 @@ public class ReadonlyFlightManager : IReadonlyFlightManager
         _context = context;
         _flightCache = redisConnectionProvider.RedisCollection<FlightDbModel>();
     }
-    
+
+    public async ValueTask<Flight> GetSingleOrDefaultAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var dbModel = await _flightCache.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (dbModel != null)
+        {
+            return dbModel.Adapt<Flight>();
+        }
+
+        dbModel = await _context.Flights.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        
+        return dbModel?.Adapt<Flight>();
+    }
+
     public async ValueTask<List<Flight>> GetAsync(IDictionary<string, string> filters, CancellationToken cancellationToken = default)
     {
         var isFilterBuilt = TryBuildFilter(filters, out var expression);
@@ -66,8 +81,8 @@ public class ReadonlyFlightManager : IReadonlyFlightManager
         Expression<Func<FlightDbModel, bool>> destinationFilterExpression = null;
 
         var isOriginFilterExists = filters.TryGetValue(nameof(FlightDbModel.Origin), out var originFilterValue);
-        var isDestinationFilterExists = filters.TryGetValue(nameof(FlightDbModel.Destination), out var destinationFilter);
-
+        var isDestinationFilterExists = filters.TryGetValue(nameof(FlightDbModel.Destination), out var destinationFilterValue);
+        
         if (isOriginFilterExists)
         {
             filter = FlightDbModel.OriginFilter(originFilterValue);
@@ -76,8 +91,8 @@ public class ReadonlyFlightManager : IReadonlyFlightManager
         if (isDestinationFilterExists)
         {
             filter = filter == null ?
-                FlightDbModel.DestinationFilter(destinationFilter) :
-                filter.And(FlightDbModel.DestinationFilter(destinationFilter));
+                FlightDbModel.DestinationFilter(destinationFilterValue) :
+                filter.And(FlightDbModel.DestinationFilter(destinationFilterValue));
         }
 
         return isOriginFilterExists || isDestinationFilterExists;

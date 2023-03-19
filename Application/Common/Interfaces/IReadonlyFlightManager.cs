@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Entities.FlightAggregate;
@@ -8,5 +9,6 @@ namespace Application.Common.Interfaces;
 
 public interface IReadonlyFlightManager
 {
+    ValueTask<Flight> GetSingleOrDefaultAsync(Guid id, CancellationToken cancellationToken = default);
     ValueTask<List<Flight>> GetAsync([CanBeNull]IDictionary<string, string> filters, CancellationToken cancellationToken = default);
 }

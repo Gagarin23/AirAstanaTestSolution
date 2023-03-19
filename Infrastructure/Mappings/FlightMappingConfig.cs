@@ -1,5 +1,6 @@
 ﻿using System;
 using Application.Common.Extensions;
+using Application.Flights.Commands.Add;
 using Domain.Entities;
 using Domain.Entities.FlightAggregate;
 using HarmonyLib;
@@ -8,7 +9,7 @@ using Mapster;
 
 namespace Infrastructure.Mappings;
 
-public class FlightDbModelMappingConfig : IRegister
+public class FlightMappingConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
@@ -38,5 +39,8 @@ public class FlightDbModelMappingConfig : IRegister
                     ref var statusField = ref AccessTools.FieldRefAccess<FlightDbModel, Guid>(statusInfo)(model);
                     statusField = flight.Status.ToGuid();
                 });
+        
+        config.ForType<AddFlightCommand, Flight>()
+            .ConstructUsing(model => new Flight(model.Origin, model.Destination, model.Departure, model.Arrival, model.Status));
     }
 }
