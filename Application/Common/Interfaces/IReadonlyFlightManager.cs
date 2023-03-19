@@ -10,5 +10,5 @@ namespace Application.Common.Interfaces;
 public interface IReadonlyFlightManager
 {
     ValueTask<Flight> GetSingleOrDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-    ValueTask<List<Flight>> GetAsync([CanBeNull]IDictionary<string, string> filters, CancellationToken cancellationToken = default);
+    ValueTask<List<Flight>> GetAsync(IDictionary<string, string> filters, CancellationToken cancellationToken = default);
 }
