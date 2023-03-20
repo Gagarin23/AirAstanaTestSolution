@@ -4,4 +4,7 @@
   &lt;Assembly Path="C:\Users\cuzit\.nuget\packages\redis.om\0.4.2\lib\netstandard2.0\Redis.OM.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolutionBuilderNext/OutputVerbosityLevel/@EntryValue">Normal</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d8b7c2dd_002D6c38_002D4e95_002Dae03_002Db8b030928c7d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from FlightTests.cs" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;ProjectFile&gt;A2BDAED8-535E-49A7-8A5D-5D56DD84037A/f:FlightTests.cs&lt;/ProjectFile&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
 	</wpf:ResourceDictionary>

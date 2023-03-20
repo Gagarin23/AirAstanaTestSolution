@@ -9,7 +9,7 @@ public static class FlightStatusExtensions
     public static Guid ToGuid(this FlightStatus status) =>
         status switch
         {
-            FlightStatus.InTime => FlightStatusConstants.InTimeId,
+            FlightStatus.OnTime => FlightStatusConstants.InTimeId,
             FlightStatus.Delayed => FlightStatusConstants.DelayedId,
             FlightStatus.Cancelled => FlightStatusConstants.CancelledId,
             _ => Guid.Empty
@@ -19,7 +19,7 @@ public static class FlightStatusExtensions
     {
         if (id == FlightStatusConstants.InTimeId)
         {
-            return FlightStatus.InTime;
+            return FlightStatus.OnTime;
         }
         
         if (id == FlightStatusConstants.DelayedId)

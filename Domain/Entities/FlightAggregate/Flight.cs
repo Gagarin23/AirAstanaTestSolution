@@ -53,10 +53,10 @@ public class Flight : AggregateBase
     /// </summary>
     /// <param name="delayDeparture">Опционально, для корректировки времени</param>
     /// <param name="delayArrival">Опционально, для корректировки времени</param>
-    public void InTime(TimeSpan delayDeparture = default, TimeSpan delayArrival = default)
+    public void OnTime(TimeSpan delayDeparture = default, TimeSpan delayArrival = default)
     {
         OffsetDepartureAndArrival(delayDeparture, delayArrival);
-        ChangeStatus(FlightStatus.InTime);
+        ChangeStatus(FlightStatus.OnTime);
     }
 
     public void Delayed(TimeSpan delayDeparture, TimeSpan delayArrival)

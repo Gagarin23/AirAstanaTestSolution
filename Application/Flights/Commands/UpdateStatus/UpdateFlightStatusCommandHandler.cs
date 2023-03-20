@@ -33,8 +33,8 @@ public class UpdateFlightStatusCommandHandler : IRequestHandler<UpdateFlightStat
                 );
                 break;
             
-            case FlightStatus.InTime:
-                flights.InTime
+            case FlightStatus.OnTime:
+                flights.OnTime
                 (
                     TimeSpan.FromMinutes(request.DepartureOffsetInMinutes),
                     TimeSpan.FromMinutes(request.ArrivalOffsetInMinutes)
@@ -46,7 +46,7 @@ public class UpdateFlightStatusCommandHandler : IRequestHandler<UpdateFlightStat
                 break;
             
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(request.Status));
         }
 
         await _flightManager.UpdateAsync(flights, cancellationToken);

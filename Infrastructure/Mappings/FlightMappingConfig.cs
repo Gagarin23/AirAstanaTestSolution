@@ -16,7 +16,7 @@ public class FlightMappingConfig : IRegister
         config.ForType<FlightDbModel, Flight>()
             .Ignore(flight => flight.Status)
             //FlightStatus.InTime - хак для маппинга.
-            .ConstructUsing(model => new Flight(model.Origin, model.Destination, model.Departure, model.Arrival, FlightStatus.InTime))
+            .ConstructUsing(model => new Flight(model.Origin, model.Destination, model.Departure, model.Arrival, FlightStatus.OnTime))
             .AfterMapping(
                 (model, flight) =>
                 {
