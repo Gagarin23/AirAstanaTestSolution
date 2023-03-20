@@ -68,9 +68,9 @@ public class ReadonlyFlightManager : IReadonlyFlightManager
         return await GetFlightsAsync(dbIterator, cancellationToken);
     }
 
-    private bool TryBuildFilter(IDictionary<string, string> filters, out Expression<Func<FlightDbModel, bool>> filter)
+    private bool TryBuildFilter(IDictionary<string, string> filters, out Specification<FlightDbModel> filter)
     {
-        filter = null;
+        filter = default;
 
         const string originKey = "origin";
         const string destinationKey = "destination";
@@ -85,9 +85,9 @@ public class ReadonlyFlightManager : IReadonlyFlightManager
         
         if (isDestinationFilterExists)
         {
-            filter = filter == null ?
+            filter = filter.Expression == null ?
                 FlightDbModel.DestinationFilter(destinationFilterValue) :
-                filter.And(FlightDbModel.DestinationFilter(destinationFilterValue));
+                filter && FlightDbModel.DestinationFilter(destinationFilterValue);
         }
 
         return isOriginFilterExists || isDestinationFilterExists;

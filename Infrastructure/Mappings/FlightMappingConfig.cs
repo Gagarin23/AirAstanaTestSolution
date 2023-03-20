@@ -15,11 +15,12 @@ public class FlightMappingConfig : IRegister
     {
         config.ForType<FlightDbModel, Flight>()
             .Ignore(flight => flight.Status)
-            //FlightStatus.InTime - хак для маппинга.
+            //FlightStatus.OnTime - хак для маппинга.
             .ConstructUsing(model => new Flight(model.Origin, model.Destination, model.Departure, model.Arrival, FlightStatus.OnTime))
             .AfterMapping(
                 (model, flight) =>
                 {
+                    //используем ref чтобы избежать боксинга структур.
                     var statusInfo = AccessTools.Field(typeof(Flight), "<Status>k__BackingField");
                     ref var statusField = ref AccessTools.FieldRefAccess<Flight, FlightStatus>(statusInfo)(flight);
                     statusField = model.StatusId.ToFlightStatus();

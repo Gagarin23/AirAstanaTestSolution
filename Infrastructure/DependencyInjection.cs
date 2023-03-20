@@ -59,7 +59,7 @@ namespace Infrastructure
                 provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
             );
             
-            services.AddTransient<IUserContext, UserContext>();
+            services.AddScoped<IUserContext, UserContext>();
 
             services.AddScoped<IReadonlyDatabaseContext, ReadonlyDatabaseContextWrapper>();
             
