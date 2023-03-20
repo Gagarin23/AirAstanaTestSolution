@@ -84,7 +84,6 @@ namespace Api
                     options =>
                     {
                         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-                        options.JsonSerializerOptions.WriteIndented = true;
                         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                     }
                 );
@@ -102,8 +101,6 @@ namespace Api
             services.AddInfrastructure(_configuration);
 
             services.AddCors();
-
-            services.AddEndpointsApiExplorer();
 
             AddSwagger(services);
 

@@ -74,10 +74,11 @@ public class FlightManager : IFlightManager
 
     private async ValueTask ActualizeCacheAsync(FlightDbModel flightDbModel)
     {
-        var cached = await _flightCache.FirstOrDefaultAsync(x => x.Id == flightDbModel.Id) ?? new FlightDbModel();
+        var cached = await _flightCache.FirstOrDefaultAsync(x => x.Id == flightDbModel.Id);
 
-        flightDbModel.CacheKey = cached.CacheKey;
+        flightDbModel.CacheKey = cached?.CacheKey ?? default;
         
+        //insert работает как redis set комманда, поэтому подходит как для добавление, так и для обновления
         await _flightCache.InsertAsync(flightDbModel);
     }
 
