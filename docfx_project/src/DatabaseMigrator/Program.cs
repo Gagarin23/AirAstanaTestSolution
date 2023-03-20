@@ -31,7 +31,7 @@ namespace DatabaseMigrator
 
                 var optionsBuilder = new DbContextOptionsBuilder<DatabaseContext>();
                 optionsBuilder.LogTo(Log.Logger.Information, LogLevel.Information);
-                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("DbConnectionString"));
+                optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("DB_CONNECTION_STRING"));
 
                 using (var context = new DatabaseContext(optionsBuilder.Options))
                 {
@@ -58,7 +58,7 @@ namespace DatabaseMigrator
 
         private static void RebuildCache(DatabaseContext context)
         {
-            var provider = new RedisConnectionProvider(Environment.GetEnvironmentVariable("RedisConnection"));
+            var provider = new RedisConnectionProvider(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING"));
 
             RefreshCache(context, provider);
             CreateIndexes(provider);

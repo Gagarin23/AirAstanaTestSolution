@@ -191,9 +191,11 @@ namespace Api
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI();
             }
+            
+            //Вытащил сваггер из development в демонстрационных целях.
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseCors
             (

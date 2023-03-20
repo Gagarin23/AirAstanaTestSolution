@@ -12,5 +12,5 @@ public static class ValidationMessages
 
 public static class AuthenticationMessages
 {
-    public const string PasswordOrUserIsInvalid = "Некоректный пользователь или пароль.";
+    public const string PasswordOrUserIsInvalid = "Некоректное имя пользователя или пароль.";
 }

@@ -24,6 +24,8 @@ namespace Api.Controllers
         /// <summary>
         /// Получение рейсов
         /// </summary>
+        /// <param name="request">Обязателен один из фильтров:<br/> "origin"<br/> "destination"</param>
+        /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetFlightsQueryResponse))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]

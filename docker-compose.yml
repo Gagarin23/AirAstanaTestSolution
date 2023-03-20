@@ -1,0 +1,70 @@
+version: '3'
+services:
+  app:
+    image: gagarin23/air-astana-test
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    volumes:
+      - ./app/appsettings.json:/app/appsettings.json
+      - ./app/server.crt:/app/server.crt
+      - ./app/server.key:/app/server.key
+    depends_on:
+      - migrator    
+    networks:
+      - air_astana_network
+
+  migrator:
+    image: gagarin23/db-migrator-with-cache-rebuild
+    environment:
+      DB_CONNECTION_STRING: "Data Source=db;Database=AirAstanaDb;Integrated Security=false;TrustServerCertificate=true;User Id=sa;Password=Password!@#;"
+      REDIS_CONNECTION_STRING: "redis://redis:6379"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - air_astana_network
+    
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      MSSQL_SA_PASSWORD: "Password!@#"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - air_astana_network
+
+  redis:
+    image: redis/redis-stack-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - air_astana_network
+
+  redisinsight:
+    image: redislabs/redisinsight
+    restart: always
+    ports:
+      - "8001:8001"
+    environment:
+      - REDISINSIGHT_REDIS_HOSTS=redis:6379
+    depends_on:
+      - redis
+    networks:
+      - air_astana_network
+
+volumes:
+  sqlserver-data:
+  redis-data:
+
+networks:
+  air_astana_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24

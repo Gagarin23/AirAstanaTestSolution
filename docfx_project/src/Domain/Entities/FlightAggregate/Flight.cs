@@ -37,7 +37,7 @@ public class Flight : AggregateBase
                 throw new DomainInvalidStateException(nameof(Status), ValidationMessages.DefaultValue) :
                 status;
 
-        if (Departure > Arrival)
+        if (Departure >= Arrival)
         {
             throw new DomainInvalidStateException(nameof(Flight), ValidationMessages.DepartureGreaterOrEqualsThanArrival);
         }
