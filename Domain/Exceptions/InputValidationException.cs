@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace Application.Common.Exceptions;
+namespace Domain.Exceptions;
 
 public class InputValidationException : ValidationException
 {

@@ -5,6 +5,7 @@ using FluentValidation;
 
 namespace Application.Common.Validators;
 
+//partial, т.к. в .net7 используем автосгенерированнные регулярки. Удалил т.к. в .net6 не поддерживается.
 public abstract partial class InputValidator<T> : AbstractValidator<T>
 {
     protected bool ValidateId(long id)

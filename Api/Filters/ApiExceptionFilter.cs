@@ -1,4 +1,3 @@
-using Application.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -6,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using Application.Common.Extensions;
+using Domain.Exceptions;
 
 namespace Api.Filters
 {
@@ -19,6 +19,7 @@ namespace Api.Filters
             {
                 { typeof(InputValidationException), HandleInputValidationException },
                 { typeof(BusinessValidationException), HandleBusinessValidationException },
+                { typeof(DomainInvalidStateException), HandleBusinessValidationException },
                 { typeof(AuthenticationException), HandleAuthenticationException }
             };
         }

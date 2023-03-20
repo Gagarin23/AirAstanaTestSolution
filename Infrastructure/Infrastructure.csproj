@@ -12,12 +12,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="EFCore.BulkExtensions" Version="7.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.4">
+        <PackageReference Include="EFCore.BulkExtensions" Version="6.7.0" />
+        <PackageReference Include="MessagePack" Version="2.5.108" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.15" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.15">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Redis.OM" Version="0.4.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +30,10 @@
         <Compile Update="Persistence\DatabaseContext.cs">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\Migrations" />
     </ItemGroup>
 
 </Project>

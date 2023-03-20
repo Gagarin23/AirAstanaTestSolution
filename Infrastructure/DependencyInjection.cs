@@ -1,10 +1,21 @@
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using Application.Common.Interfaces;
+using Infrastructure.Interfaces;
 using Infrastructure.Persistence;
+using Infrastructure.Services.Flights;
+using Infrastructure.Services.Users;
+using Mapster;
+using MessagePack;
+using MessagePack.Resolvers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Redis.OM;
+using Redis.OM.Contracts;
 
 namespace Infrastructure
 {
@@ -26,7 +37,7 @@ namespace Infrastructure
                         b =>
                             b.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName)
                     );
-                    
+
                     options.UseInternalServiceProvider(provider);
                     
                     if (EnvironmentExtension.IsDevelopment)
@@ -39,9 +50,29 @@ namespace Infrastructure
 
             services.AddScoped<IDatabaseContext>
             (
-                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>()
-                    .CreateDbContext()
+                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
             );
+
+            //для identity
+            services.AddScoped<DatabaseContext>
+            (
+                provider => provider.GetRequiredService<IDbContextFactory<DatabaseContext>>().CreateDbContext()
+            );
+            
+            services.AddTransient<IUserContext, UserContext>();
+
+            services.AddScoped<IReadonlyDatabaseContext, ReadonlyDatabaseContextWrapper>();
+            
+            MessagePackSerializer.DefaultOptions = ContractlessStandardResolver.Options;
+
+            services.AddScoped<IFlightManager, FlightManager>();
+            services.AddScoped<IReadonlyFlightManager, ReadonlyFlightManager>();
+            
+            var redisConnection = configuration.GetConnectionString("RedisConnection");
+            services.AddScoped<IRedisConnectionProvider, RedisConnectionProvider>(_ => new RedisConnectionProvider(redisConnection));
+            
+            TypeAdapterConfig.GlobalSettings.Compiler = exp => exp.CompileWithDebugInfo();
+            TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 
             return services;
         }
